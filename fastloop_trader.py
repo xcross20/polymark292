@@ -47,9 +47,8 @@ except ImportError:
 
 CONFIG_SCHEMA = {
     "entry_threshold": {"default": 0.05, "env": "SIMMER_SPRINT_ENTRY", "type": float,
-                        "help": "Min price divergence from 50¢ to trigger trade"},
+                        "help": "Min price divergence from 50c to trigger trade"},
     "min_momentum_pct": {"default": 0.5, "env": "SIMMER_SPRINT_MOMENTUM", "type": float,
                          "help": "Min BTC % move in lookback window to trigger"},
     "max_position": {"default": 5.0, "env": "SIMMER_SPRINT_MAX_POSITION", "type": float,
                      "help": "Max $ per trade"},
-    "signal_source": {"default": "coinbase", "env": "SIMMER_SPRINT_SIGNAL", "type": str,
