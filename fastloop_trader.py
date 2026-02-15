@@ -732,6 +732,8 @@ if __name__ == "__main__":
     parser.add_argument("--smart-sizing", action="store_true", help="Use portfolio-based position sizing")
     parser.add_argument("--quiet", "-q", action="store_true",
                         help="Only output on trades/errors (ideal for high-frequency runs)")
+    parser.add_argument("--loop", type=int, default=0, metavar="SECONDS",
+                        help="Run continuously, waiting SECONDS between cycles (e.g., --loop 60)")
     args = parser.parse_args()
 
     if args.set:
@@ -761,10 +763,38 @@ if __name__ == "__main__":
 
     dry_run = not args.live
 
-    run_fast_market_strategy(
-        dry_run=dry_run,
-        positions_only=args.positions,
-        show_config=args.config,
-        smart_sizing=args.smart_sizing,
-        quiet=args.quiet,
-    )
+    import time as _time
+
+    if args.loop and args.loop > 0:
+        print(f"[LOOP] Running every {args.loop}s. Press Ctrl+C to stop.")
+        cycle = 0
+        while True:
+            cycle += 1
+            print(f"\n--- Cycle {cycle} at {datetime.now(timezone.utc).strftime('%H:%M:%S UTC')} ---")
+            try:
+                run_fast_market_strategy(
+                    dry_run=dry_run,
+                    positions_only=args.positions,
+                    show_config=args.config,
+                    smart_sizing=args.smart_sizing,
+                    quiet=args.quiet,
+                )
+            except KeyboardInterrupt:
+                print("\n[LOOP] Stopped by user.")
+                break
+            except Exception as loop_err:
+                print(f"[LOOP] Error in cycle {cycle}: {loop_err}")
+            print(f"[LOOP] Sleeping {args.loop}s...")
+            try:
+                _time.sleep(args.loop)
+            except KeyboardInterrupt:
+                print("\n[LOOP] Stopped by user.")
+                break
+    else:
+        run_fast_market_strategy(
+            dry_run=dry_run,
+            positions_only=args.positions,
+            show_config=args.config,
+            smart_sizing=args.smart_sizing,
+            quiet=args.quiet,
+        )
